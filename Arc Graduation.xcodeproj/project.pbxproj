@@ -14,6 +14,7 @@
 		1C98B8F91C933631007779F9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1C98B8F71C933631007779F9 /* LaunchScreen.storyboard */; };
 		1C98B9041C933631007779F9 /* Arc_GraduationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C98B9031C933631007779F9 /* Arc_GraduationTests.swift */; };
 		1C98B90F1C933631007779F9 /* Arc_GraduationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C98B90E1C933631007779F9 /* Arc_GraduationUITests.swift */; };
+		1C98B91D1C933665007779F9 /* DialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C98B91C1C933665007779F9 /* DialView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		1C98B90A1C933631007779F9 /* Arc GraduationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Arc GraduationUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C98B90E1C933631007779F9 /* Arc_GraduationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arc_GraduationUITests.swift; sourceTree = "<group>"; };
 		1C98B9101C933631007779F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1C98B91C1C933665007779F9 /* DialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DialView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 			children = (
 				1C98B8EE1C933631007779F9 /* AppDelegate.swift */,
 				1C98B8F01C933631007779F9 /* ViewController.swift */,
+				1C98B91C1C933665007779F9 /* DialView.swift */,
 				1C98B8F21C933631007779F9 /* Main.storyboard */,
 				1C98B8F51C933631007779F9 /* Assets.xcassets */,
 				1C98B8F71C933631007779F9 /* LaunchScreen.storyboard */,
@@ -258,6 +261,7 @@
 			files = (
 				1C98B8F11C933631007779F9 /* ViewController.swift in Sources */,
 				1C98B8EF1C933631007779F9 /* AppDelegate.swift in Sources */,
+				1C98B91D1C933665007779F9 /* DialView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
