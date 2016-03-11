@@ -9,15 +9,36 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    let dialView = DialView()
+    var phase = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let v = DialView(frame: CGRect(x: 0, y: 100, width: UIScreen.mainScreen().bounds.size.width, height: UIScreen.mainScreen().bounds.size.width))
-        v.backgroundColor = UIColor.lightGrayColor()
-        v.graduationAngle = CGFloat(M_PI*0.79) // 21% along the arc from the left (0 degrees coresponds to the right hand side of the circle, with the positive angle direction going anti-clocwise (much like a unit circle in maths), so we define 79% along the arc, from the right hand side)
-        view.addSubview(v)
+        dialView.frame = CGRect(x: 0, y: 100, width: UIScreen.mainScreen().bounds.size.width, height: UIScreen.mainScreen().bounds.size.width)
+        dialView.backgroundColor = UIColor.lightGrayColor()
+        view.addSubview(dialView)
+        
+        let displayLink = CADisplayLink(target: self, selector: Selector("updateGraduationAngle"))
+        displayLink.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSRunLoopCommonModes)
+    }
+    
+    func updateGraduationAngle() {
+        
+        if dialView.graduationAngle > CGFloat(M_PI) {
+            phase = false
+        }
+        
+        if dialView.graduationAngle < 0 {
+            phase = true
+        }
+        
+        if phase {
+            dialView.graduationAngle += 0.01
+        } else {
+            dialView.graduationAngle -= 0.01
+        }
     }
 
     override func didReceiveMemoryWarning() {

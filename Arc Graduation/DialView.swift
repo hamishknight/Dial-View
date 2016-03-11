@@ -16,8 +16,9 @@ class DialView: UIView {
     
     private let graduationWidth = CGFloat(4.0) // the width of the graduation
     private let graduationLength = CGFloat(50.0) // the length of the graduation
+    private let graduationTextPadding = CGFloat(5.0) // the padding between the graduation line and the text
     private let graduationColor = UIColor.redColor() // the color of both the graduation line and text
-    private let graduationTextFont = UIFont.systemFontOfSize(30) // the font of the text to render at the end of the graduation
+    private let graduationTextFont = UIFont.systemFontOfSize(20) // the font of the text to render at the end of the graduation
     
     /// the starting radius of the graduation
     private var startGradRad:CGFloat {
@@ -34,14 +35,18 @@ class DialView: UIView {
     }
     
     /// radius of your arc
-    private lazy var radius:CGFloat = {
-        return self.frame.size.width*0.5 - 80.0
-    }()
+    private var radius:CGFloat {
+        get {
+            return self.frame.size.width*0.5 - 100.0
+        }
+    }
     
     /// center point of your arc
-    private lazy var centerPoint:CGPoint = {
-        return CGPoint(x: self.frame.size.width*0.5 , y: self.frame.size.height)
-    }()
+    private var centerPoint:CGPoint {
+        get {
+            return CGPoint(x: self.frame.size.width*0.5 , y: self.frame.size.height)
+        }
+    }
     
     /// default paragraph style
     private lazy var paragraphStyle:NSParagraphStyle = {
@@ -56,7 +61,24 @@ class DialView: UIView {
     /// the angle of the graduation
     var graduationAngle:CGFloat = 0 {
         didSet {
-            self.updateGraduationAngle() // update graduation
+            updateGraduationAngle() // update graduation
+        }
+    }
+    
+    override var frame: CGRect {
+        didSet {
+            semiCircleLayer.frame = CGRect(origin: CGPointZero, size: frame.size)
+            
+            // drawing an upper half of a circle -> 180 degree to 0 degree, clockwise
+            let startAngle = CGFloat(M_PI)
+            let endAngle = CGFloat(0.0)
+            
+            // path set here
+            let semiCirclePath = UIBezierPath(arcCenter:centerPoint, radius:radius, startAngle:startAngle, endAngle:endAngle, clockwise: true)
+            semiCircleLayer.path = semiCirclePath.CGPath
+            
+            graduationLayer.frame = semiCircleLayer.bounds
+            updateGraduationAngle()
         }
     }
     
@@ -73,15 +95,6 @@ class DialView: UIView {
     
     func addSemiCircle() {
         
-        // drawing an upper half of a circle -> 180 degree to 0 degree, clockwise
-        let startAngle = CGFloat(M_PI)
-        let endAngle = CGFloat(0.0)
-        
-        // path set here
-        semiCircleLayer.frame = bounds // requried for layer calculations
-        let semiCirclePath = UIBezierPath(arcCenter:centerPoint, radius:radius, startAngle:startAngle, endAngle:endAngle, clockwise: true)
-        semiCircleLayer.path = semiCirclePath.CGPath
-        
         // layer customisation
         semiCircleLayer.fillColor = UIColor.clearColor().CGColor
         semiCircleLayer.strokeColor = UIColor(red: 237.0/255.0, green: 236.0/255.0, blue: 236.0/255.0, alpha: 1.0).CGColor
@@ -91,8 +104,6 @@ class DialView: UIView {
     }
     
     func addGraduation() {
-        
-        graduationLayer.frame = semiCircleLayer.bounds
         
         // configure stroking options
         graduationLayer.fillColor = UIColor.clearColor().CGColor
@@ -132,7 +143,7 @@ class DialView: UIView {
         let yOffset = abs(sin(graduationAngle))*textSize.height*0.5 // the y-offset of the text from the end of the graduation line
         
         // bit of pythagorus to determine how far away the center of the text lies from the end of the graduation line. multiplying the values together is cheaper than using pow.
-        let textOffset = sqrt(xOffset*xOffset+yOffset*yOffset)
+        let textOffset = sqrt(xOffset*xOffset+yOffset*yOffset)+graduationTextPadding
         
         // the center of the text to render
         let textCenter = CGPoint(x: cos(-graduationAngle)*textOffset+endGradPoint.x, y: sin(-graduationAngle)*textOffset+endGradPoint.y)
@@ -140,7 +151,11 @@ class DialView: UIView {
         // the frame of the text to render
         let textRect = CGRect(x: textCenter.x-textSize.width*0.5, y: textCenter.y-textSize.height*0.5, width: textSize.width, height: textSize.height)
         
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         graduationTextLayer.frame = textRect
+        CATransaction.commit()
+        
         graduationTextLayer.string = str
     }
 }
