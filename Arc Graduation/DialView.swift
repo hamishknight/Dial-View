@@ -14,12 +14,6 @@ class DialView: UIView {
     private let graduationLayer = CAShapeLayer() // the graduation layer that'll display the graduation
     private let graduationTextLayer = CATextLayer() // the layer that renders the text at the end of the graduation
     
-    private let graduationWidth = CGFloat(4.0) // the width of the graduation
-    private let graduationLength = CGFloat(50.0) // the length of the graduation
-    private let graduationTextPadding = CGFloat(5.0) // the padding between the graduation line and the text
-    private let graduationColor = UIColor.redColor() // the color of both the graduation line and text
-    private let graduationTextFont = UIFont.systemFontOfSize(20) // the font of the text to render at the end of the graduation
-    
     /// the starting radius of the graduation
     private var startGradRad:CGFloat {
         get {
@@ -58,6 +52,45 @@ class DialView: UIView {
         return [NSParagraphStyleAttributeName:self.paragraphStyle, NSFontAttributeName:self.graduationTextFont]
     }()
     
+    /// the color of both the graduation line and text
+    var graduationColor = UIColor.redColor() {
+        didSet {
+            graduationLayer.strokeColor = graduationColor.CGColor // color of graduation line
+            graduationTextLayer.foregroundColor = graduationColor.CGColor // color of text
+        }
+    }
+    
+    /// the width of the graduation
+    var graduationWidth = CGFloat(4.0) {
+        didSet {
+            graduationLayer.lineWidth = graduationWidth
+        }
+    }
+    
+    /// the length of the graduation
+    var graduationLength = CGFloat(50.0) {
+        didSet {
+            updateGraduationAngle()
+        }
+    }
+    
+    /// the padding between the graduation line and the text
+    var graduationTextPadding = CGFloat(5.0) {
+        didSet {
+            updateGraduationAngle()
+        }
+    }
+    
+    /// the font of the text to render at the end of the graduation
+    var graduationTextFont = UIFont.systemFontOfSize(20) {
+        didSet {
+            textAttributes[NSFontAttributeName] = graduationTextFont
+            graduationTextLayer.font = graduationTextFont
+            graduationTextLayer.fontSize = graduationTextFont.pointSize
+            updateGraduationAngle()
+        }
+    }
+    
     /// the angle of the graduation
     var graduationAngle:CGFloat = 0 {
         didSet {
@@ -65,19 +98,23 @@ class DialView: UIView {
         }
     }
     
+    var dialColor:UIColor = UIColor(red: 237.0/255.0, green: 236.0/255.0, blue: 236.0/255.0, alpha: 1.0) {
+        didSet {
+            semiCircleLayer.strokeColor = dialColor.CGColor
+        }
+    }
+    
     override var frame: CGRect {
         didSet {
+        
+            // update semi-circle layer frame
             semiCircleLayer.frame = CGRect(origin: CGPointZero, size: frame.size)
-            
-            // drawing an upper half of a circle -> 180 degree to 0 degree, clockwise
-            let startAngle = CGFloat(M_PI)
-            let endAngle = CGFloat(0.0)
-            
-            // path set here
-            let semiCirclePath = UIBezierPath(arcCenter:centerPoint, radius:radius, startAngle:startAngle, endAngle:endAngle, clockwise: true)
+            graduationLayer.frame = semiCircleLayer.bounds
+        
+            // update semi-circle path
+            let semiCirclePath = UIBezierPath(arcCenter:centerPoint, radius:radius, startAngle:CGFloat(M_PI), endAngle:CGFloat(0.0), clockwise: true)
             semiCircleLayer.path = semiCirclePath.CGPath
             
-            graduationLayer.frame = semiCircleLayer.bounds
             updateGraduationAngle()
         }
     }
@@ -93,34 +130,34 @@ class DialView: UIView {
         super.init(coder: aDecoder)
     }
     
-    func addSemiCircle() {
+    private func addSemiCircle() {
         
         // layer customisation
         semiCircleLayer.fillColor = UIColor.clearColor().CGColor
-        semiCircleLayer.strokeColor = UIColor(red: 237.0/255.0, green: 236.0/255.0, blue: 236.0/255.0, alpha: 1.0).CGColor
         semiCircleLayer.lineWidth = 20.0
         semiCircleLayer.lineCap = kCALineCapButt
+        semiCircleLayer.strokeColor = dialColor.CGColor
         layer.addSublayer(semiCircleLayer)
     }
     
-    func addGraduation() {
+    private func addGraduation() {
         
         // configure stroking options
         graduationLayer.fillColor = UIColor.clearColor().CGColor
-        graduationLayer.strokeColor = graduationColor.CGColor
         graduationLayer.lineWidth = graduationWidth
+        graduationLayer.strokeColor = graduationColor.CGColor // color of graduation line
         semiCircleLayer.addSublayer(graduationLayer)
         
         graduationTextLayer.contentsScale = UIScreen.mainScreen().scale // to ensure the text is rendered at the screen scale
+        graduationTextLayer.foregroundColor = graduationColor.CGColor // color of text
         graduationTextLayer.font = graduationTextFont
         graduationTextLayer.fontSize = graduationTextFont.pointSize // required as CATextLayer ignores the font size of the font you pass
-        graduationTextLayer.foregroundColor = graduationColor.CGColor // color of text
         graduationLayer.addSublayer(graduationTextLayer)
         
         updateGraduationAngle()
     }
     
-    func updateGraduationAngle() {
+    private func updateGraduationAngle() {
         
         // the starting point of the graduation line. the angles are negative as the arc is effectively drawn upside-down in the UIKit coordinate system.
         let startGradPoint = CGPoint(x: cos(-graduationAngle)*startGradRad+centerPoint.x, y: sin(-graduationAngle)*startGradRad+centerPoint.y)
