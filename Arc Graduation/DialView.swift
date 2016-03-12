@@ -48,7 +48,7 @@ class DialView: UIView {
     }()
     
     /// the text attributes dictionary. used to obtain a size of the drawn text in order to calculate its frame. default font size also specified here
-    private lazy var textAttributes:[String:AnyObject] = {[unowned self] in
+    private lazy var textAttributes:[String:AnyObject] = {
         return [NSParagraphStyleAttributeName:self.paragraphStyle, NSFontAttributeName:UIFont.systemFontOfSize(20)]
     }()
     
