@@ -47,9 +47,9 @@ class DialView: UIView {
         return NSParagraphStyle()
     }()
     
-    /// the text attributes dictionary. used to obtain a size of the drawn text in order to calculate its frame
-    private lazy var textAttributes:[String:AnyObject] = {
-        return [NSParagraphStyleAttributeName:self.paragraphStyle, NSFontAttributeName:self.graduationTextFont]
+    /// the text attributes dictionary. used to obtain a size of the drawn text in order to calculate its frame. default font size also specified here
+    private lazy var textAttributes:[String:AnyObject] = {[unowned self] in
+        return [NSParagraphStyleAttributeName:self.paragraphStyle, NSFontAttributeName:UIFont.systemFontOfSize(20)]
     }()
     
     /// the color of both the graduation line and text
@@ -81,12 +81,17 @@ class DialView: UIView {
         }
     }
     
-    /// the font of the text to render at the end of the graduation
-    var graduationTextFont = UIFont.systemFontOfSize(20) {
-        didSet {
-            textAttributes[NSFontAttributeName] = graduationTextFont
-            graduationTextLayer.font = graduationTextFont
-            graduationTextLayer.fontSize = graduationTextFont.pointSize
+    /// the font of the text to render at the end of the graduation. stored in the textAttributes dictionary
+    var graduationTextFont:UIFont {
+        
+        get {
+            return textAttributes[NSFontAttributeName] as! UIFont
+        }
+        
+        set(newFont) {
+            textAttributes[NSFontAttributeName] = newFont
+            graduationTextLayer.font = newFont
+            graduationTextLayer.fontSize = newFont.pointSize
             updateGraduationAngle()
         }
     }
@@ -98,12 +103,20 @@ class DialView: UIView {
         }
     }
     
+    /// the color of the main dial arc
     var dialColor:UIColor = UIColor(red: 237.0/255.0, green: 236.0/255.0, blue: 236.0/255.0, alpha: 1.0) {
         didSet {
             semiCircleLayer.strokeColor = dialColor.CGColor
         }
     }
     
+    var maxDialValue:Int = 20 {
+        didSet {
+            updateGraduationAngle()
+        }
+    }
+    
+    // update layers when frame changes
     override var frame: CGRect {
         didSet {
         
@@ -171,7 +184,7 @@ class DialView: UIView {
         graduationLayer.path = graduationPath.CGPath // add path to the graduation shape layer
         
         // the text to render at the end of the graduation - do you custom value logic here
-        let str : NSString = "value"
+        let str : NSString = String(format: "%d", Int(round(CGFloat(maxDialValue)*(1-(graduationAngle/CGFloat(M_PI))))))
         
         // size of the rendered text
         let textSize = str.sizeWithAttributes(textAttributes)
@@ -188,11 +201,12 @@ class DialView: UIView {
         // the frame of the text to render
         let textRect = CGRect(x: textCenter.x-textSize.width*0.5, y: textCenter.y-textSize.height*0.5, width: textSize.width, height: textSize.height)
         
+        // disable implict animations
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         graduationTextLayer.frame = textRect
+        graduationTextLayer.string = str
         CATransaction.commit()
         
-        graduationTextLayer.string = str
     }
 }
